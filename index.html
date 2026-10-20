@@ -73,7 +73,7 @@ footer{margin-top:48px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <nav class="rail" aria-label="目录">
-  <div class="brand">螺壳系统文档<small>LUOKE DOCS · 生成于 2026-10-20 11:58</small></div>
+  <div class="brand">螺壳系统文档<small>LUOKE DOCS · 生成于 2026-10-20 11:59</small></div>
   <label class="picker-label" for="pagepicker" hidden>页面</label>
   <select class="picker" id="pagepicker"><option value="overview">概览 · 总览</option><option value="concepts">概览 · 核心概念</option><option value="flows">概览 · 数据流</option><option value="core">组件 · 主控 luoke-core</option><option value="mem">组件 · 记忆 luoke-mem</option><option value="mail">组件 · 邮件助手 luoke-mail</option><option value="ime">组件 · 输入法 luoke-ime</option><option value="agent">组件 · agent「螺壳」</option><option value="ref-api">参考 · 主控任务接口</option><option value="ref-manifest">参考 · 配件清单与配方</option><option value="ref-mem">参考 · 记忆接口与表结构</option><option value="ref-tasks">参考 · 任务与提示词</option><option value="ref-files">参考 · 文件位置</option><option value="ops">运维 · 运行与发布</option><option value="decisions">其他 · 决策</option><option value="open">其他 · 已知问题</option><option value="glossary">其他 · 术语表</option><option value="changelog">其他 · 文档修订</option></select>
   <div class="navgroup"><div class="navlabel">概览</div><a href="#overview" data-page="overview">总览</a><a href="#concepts" data-page="concepts">核心概念</a><a href="#flows" data-page="flows">数据流</a></div>
@@ -842,6 +842,7 @@ sequenceDiagram
 <tr><th>HTTP</th><th>code</th><th>含义</th></tr>
 <tr><td>400</td><td><code>invalid_request</code></td><td>请求格式或参数不合法</td></tr>
 <tr><td>403</td><td><code>unknown_accessory</code></td><td>配件或版本未通过验证，或任务不属于该配件</td></tr>
+<tr><td>403</td><td><code>forbidden</code></td><td>主控本体专用的路由，对端不是本体（或允许的命令行）</td></tr>
 <tr><td>404</td><td><code>task_unavailable</code>、<code>unsupported</code></td><td>任务不存在；本档不支持该任务；换回的上一版调用其记录外的任务</td></tr>
 <tr><td>413</td><td><code>input_too_long</code></td><td>超过任务的 <code>max_chars</code></td></tr>
 <tr><td rowspan="5">503</td><td><code>busy</code></td><td>暂时不能接纳，附 <code>reason</code>（见主控 · 后台接纳）</td></tr>
@@ -880,7 +881,7 @@ sequenceDiagram
 </table></div>
 
 <h2>主控本体专用</h2>
-<p>以下路由要求身份为 <code>luoke-core</code>；<code>/smoke</code>、<code>/uninstall</code>、<code>/accessories/previous</code>、<code>/accessories/rollback</code> 还核对对端进程是否为本体。</p>
+<p>以下路由要求身份为 <code>luoke-core</code>，并按内核报告的对端 PID 核对对端是主控进程的父进程（即本体）。<code>/settings</code> 和 <code>/endpoint*</code> 另外接受主控自带的命令行 <code>luoke</code>（与主控同一个 Python 可执行文件、参数为 <code>-m luoke_core.cli</code>）。不符时答 <code>forbidden</code>。</p>
 <div class="tbl"><table>
 <tr><th>路由</th><th>说明</th></tr>
 <tr><td><code>GET /status</code></td><td>运行状态（不要求身份）：档、底座、引擎、交互、后台、冒烟、设置、下载、空闲任务、端点（不含密钥）等</td></tr>
@@ -1246,7 +1247,6 @@ sequenceDiagram
 <h2>缺陷</h2>
 <ul>
 <li>邮件助手：代码注释中"后台只读""只在处理模式开着时"等说法与实现不一致；自动标已读不经过操作记录。</li>
-<li>主控：<code>forbidden</code> 实际返回 HTTP 500；部分本体专用接口只核对自报身份。</li>
 </ul>
 
 <h2>待讨论</h2>
@@ -1296,6 +1296,7 @@ sequenceDiagram
 <li>正文不再记录讨论过程；决策见"决策"页。</li>
 <li>主控补检查更新、配件回滚、专用模型进程的空闲停止与内存检查、引擎内存拒绝后的重试、端点独占上限；输入法补单实例、退出通知、收尾键等待、联想停顿、引擎评测选项（luoke-core fad536a、luoke-ime 0.1.9）。</li>
 <li>已知问题：去掉记忆的三条缺陷（luoke-mem 0.23.2 已修）和输入法的两条（隐私说明已改；最低系统版本不同是有意的，见输入法章节）。</li>
+<li>主控本体专用路由改为按对端进程核对，<code>forbidden</code> 为 403（luoke-core f5850c1）；已知问题中主控的两条去掉。</li>
 </ul>
 
 <h2>2026-10-19</h2>
