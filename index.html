@@ -1360,7 +1360,7 @@ sequenceDiagram
 <tr><td>其他子命令</td><td>同一个程序也是命令行（螺壳本体写、读它的设置也调它的 <code>settings</code>），见「接口」</td></tr>
 </table></div>
 <ul>
-<li><b>没有自己的窗口</b>：用户在 agent 的对话里提问，agent 调 MCP 工具并画结果卡片；螺壳窗口的全局搜索直接调 <code>search_query</code>，按 <code>hits</code> 画整页（每一处从哪个字段来，见仓库的 <code>docs/窗口接口.md</code>）。第一次用时，螺壳本体的「开启螺壳搜索」窗口让用户选地方（桌面、文稿、下载默认勾，照片图库不勾），要到权限，再用命令行 <code>settings</code> 写进设置；以后加文件夹跟 agent 说，卡片确认；或在应用页上点「添加」，由螺壳本体弹选文件夹的框。这个框只认螺壳搜索自己那一页上的点按：点按后 10 秒内搜索要求弹框才弹，一次点按只管一次，点按要在上一个框或卡片关掉之后，螺壳还得在最前面；别处的点按、在输入框里按回车、搜索反复要求都不弹。配件清单给窗口提供概况（<code>summary</code>）、权限状态（<code>permissions</code>）、应用页（<code>service.pages</code> 的 <code>overview</code>）和一行介绍（<code>listing</code>）。</li>
+<li><b>没有自己的窗口</b>：用户在 agent 的对话里提问，agent 调 MCP 工具并画结果卡片；螺壳窗口的全局搜索直接调 <code>search_query</code>，按 <code>hits</code> 画整页（每一处从哪个字段来，见仓库的 <code>docs/窗口接口.md</code>）。第一次用时，螺壳本体的「开启螺壳搜索」窗口让用户选地方（桌面、文稿、下载默认勾，照片图库不勾），要到权限，再用命令行 <code>settings</code> 写进设置；以后加文件夹跟 agent 说，卡片确认；或在主窗口的搜索页上点「添加」（<code>search_settings_apply</code> 带 <code>add_folder: true</code>，搜索经通道向本体发 <code>{"pick_folder": true}</code>），由螺壳本体弹选文件夹的框。这个框只认螺壳搜索自己那一页上的点按：点按后 10 秒内搜索要求弹框才弹，一次点按只管一次，点按要在上一个框或卡片关掉之后，螺壳还得在最前面；别处的点按、在输入框里按回车、搜索反复要求都不弹。配件清单给窗口提供概况（<code>summary</code>）、权限状态（<code>permissions</code>）、应用页（<code>service.pages</code> 的 <code>overview</code>）和一行介绍（<code>listing</code>）。</li>
 <li><b>应用页</b>（资源 <code>page/overview</code>，侧栏「应用」下，螺壳搜索开着才有）：一张列表。精确搜索、语义搜索：可用，或进度条和数字；语义搜索用不了时写等待下载、稍后可用、未连接、不支持；暂停了或有文件不在这台 Mac 上，下面多一行小字。文件夹：只写名字，不在这里改。搜照片图库：一个开关（<code>variant: switch</code> 的按钮，调 <code>search_settings_apply</code>，不带 <code>plan_id</code>、带 <code>photos</code>，只认这一页上的点按）；打开时按钮 context 带 <code>needs: photos</code>，窗口先交给螺壳本体要到权限才调；开着但没允许时左边多一个按钮，没问过是「允许」、拒绝过是「去系统设置」，context 带 <code>permission: photos</code>，也交给本体；还没选过要搜的地方时不画开关。最近读入：只有时间，没有文件名。没有「用电池时建索引」的开关。</li>
 <li><b>读取和算向量分开</b>：读取（取文字、OCR、抽帧、切声音）由本工具完成，读完即可按字词搜；向量找主控要，主控不在或忙时记为等向量，以后补。</li>
 <li><b>跟着文件夹</b>：常驻服务启动时把文件夹走一遍（只看名字和时间，不读内容），移出不再搜的；之后用 FSEvents 盯着，变化停 0.75 秒后一起处理（最长攒 5 秒），只看变了的路径（新的、改过的、移动或改名的只改路径、删掉的、整个搬进来的文件夹）。新变的文件马上读，每次最多 50 个，排在第一遍的积压前面，读完补向量。设置改了就换成盯新的文件夹。</li>
@@ -2771,7 +2771,7 @@ sequenceDiagram
 <h2>2026-11-16</h2>
 <ul>
 <li>主控页、接口、配件清单、本机文件按代码 ccf23c7 复核：螺壳引擎可以打进螺壳.app（<code>Contents/Helpers/luoke-engine</code>），配方要的正是这一版时不用下载引擎包；空闲任务加可选的 <code>title</code>，<code>/status</code> 的 <code>queue</code> 写明各行的字段；agent 核心退出码 3、75 的重起规则；以管理员授权换包时先在只有 root 能进的临时目录里核签名，换包脚本不再写成文件；「本机放行」的残留已从代码里去掉（文档里原来就没有）。</li>
-<li>搜索页按代码 b7051c2（0.1.23）复核：别处写的设置约半秒后就接上；选在里面的文件夹只走一遍；应用页「添加」文件夹的框只认搜索页上的点按。</li>
+<li>搜索页按代码 b7051c2（0.1.23）复核：别处写的设置约半秒后就接上；选在里面的文件夹只走一遍；「添加」文件夹的框只认搜索页上的点按。</li>
 </ul>
 
 <h2>2026-11-15</h2>
